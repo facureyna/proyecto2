@@ -10,15 +10,15 @@ public class EjercicioMatrices {
 	
 	public static void main(String[] args) {
 		
+	
 		
 		//----------> variables 
+		long startTime = System.currentTimeMillis();   //---> el tiempo inicial 
 		int nroProceso,n,cantProcesos;
-		double tiempoInicial,tiempoFinal,tiempoTotal;
 		Random rand = new Random();
 		n = 7 ;    //------> el numero de filas o columnas que tendra la matriz, sera NxN , TIENE QUE SER MULTIPLO DE 2
 		int[][] datos = new int[n][n];   //---> creo la matriz datos
 		
-		tiempoInicial = MPI.Wtime();   //---> el tiempo inicial donde arranca el MPI
 		args = MPI.Init(args);
 		nroProceso = MPI.COMM_WORLD.Rank();   //---> el numero del proceso actual
 		cantProcesos = MPI.COMM_WORLD.Size();   //---> el total de procesos que hay en total
@@ -70,14 +70,14 @@ public class EjercicioMatrices {
 			while (indiceFinal <= n) {
 
 				int[][] subMat = new int[tamanioBloqueNormal][n];
-				int contador = 0;   //---> se usa para avanzar de posicione en el bloque
+				int contador = 0;   //---> se usa para avanzar de fila
 				System.out.println(" ");
 				System.out.println("          Submatriz para el proceso =>  "+ contProcesos); 
 
 				for (int i = indiceInicial; i < indiceFinal; i++) { // Controla los indices para cada bloque
 					System.out.print("    fila "+i +"  => ");
 					for (int j = 0; j < n; j++) {
-						subMat[contador][j] = datos[i][j];
+						subMat[contador][j] = datos[i][j];    //----> la columna en el for si cambia pero la fila no
 						System.out.print("["+subMat[contador][j]+"]");
 					}
 
@@ -168,13 +168,13 @@ public class EjercicioMatrices {
 		
 		//----> Calcula el tiempo que tardo en hacerse el MPI solo si es el proceso Master
 		if (nroProceso == 0) {
-			tiempoFinal = MPI.Wtime(); //-----> marca de tiempo final para medir el tiempo
-			tiempoTotal = tiempoFinal - tiempoInicial;
+			long endTime = System.currentTimeMillis();  //-----> marca de tiempo final para medir el tiempo
+			double tiempoTotal = (double)(endTime - startTime)/ 1000;   //---> paso de milisegundos a segundos la resta
 			
 			System.out.println("-------------------------------------------------------");
 			System.out.println("                 RESULTADOS FINALES                    ");
 			System.out.println("----->  Suma total: " + sumaTotal[0]);  //-----> se referencia sumaTotal[0] porque lo que devuele del reduce es un vector!!!
-			System.out.println("----->  Tiempo: +" + String.valueOf(tiempoTotal));
+			System.out.println("----->  Tiempo:  "+ String.valueOf(tiempoTotal) );
 			System.out.println("-------------------------------------------------------");
 			
 		}
