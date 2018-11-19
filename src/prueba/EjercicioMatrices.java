@@ -1,6 +1,5 @@
 package prueba;
 
-import java.awt.Dialog.ModalExclusionType;
 import java.util.Random;
 import mpi.MPI;
 
@@ -24,17 +23,16 @@ public class EjercicioMatrices {
 		nroProceso = MPI.COMM_WORLD.Rank();   //---> el numero del proceso actual
 		cantProcesos = MPI.COMM_WORLD.Size();   //---> el total de procesos que hay en total
 
-		int tamanioBloque = (int) Math.round((double) n / (double) cantProcesos);  //---> round redondea el numero integer mas cercano
-		int tamanioBloqueUltimo = n - (tamanioBloque * (cantProcesos-1));   //---> cuenta para calcular el tamaño de el ultimo bloque
-		int indiceInfMatriz = 0;
-		int indiceSupMatriz = tamanioBloque;
+		int tamanioBloqueNormal = (int) Math.round((double) n / (double) cantProcesos);  //---> round redondea el numero integer mas cercano
+		int tamanioUltimoBloque = n - (tamanioBloqueNormal * (cantProcesos-1));   //---> cuenta para calcular el tamaño de el ultimo bloque
 		
 		//--->  Estas variables  tienen que ser arrays de una posicion
 		Object arrayEnvio[] = new Object[cantProcesos];   //---> esta seria la inicializacion del bloque que se envia desde Po(la submatriz)
 		Object arrayReceptor[] = new Object[1];  //----> inicializacion del bloque que se va a recibir por los Pn procesos
 		int sumatoriaProcesoActual[] = new int[1];  //---> se inicializa la variable que va a contener la suma parcial de los elementos de la matriz 
 		int sumaTotal[] = new int[1];  //----> se inicializa ls variable que va a contener la suma total de todos los bloques
-
+		int indiceInicial = 0;   //---> arranca de cero y termina en donde termina el bloque de datos normal 
+		int indiceFinal = tamanioBloqueNormal;
 		
 		
 		//---> Si es el proceso 0 entonces inicializa la matriz y reparte en submatrices
@@ -54,31 +52,29 @@ public class EjercicioMatrices {
 				for (int j = 0; j < n; j++) {
 					datos[i][j] = rand.nextInt(10);
 					System.out.print("["+datos[i][j]+"] ");
-					//sumaCorrecta+= matrizA[i][j];
 				}
 				System.out.println();
 			}
-			System.out.println("-----------------------------------------------------");
 			
 			System.out.println("----------------------------------------------------");
-			System.out.println("Tamaño bloque para procesos hasta (n-1): " + tamanioBloque);
+			System.out.println("Tamaño bloque para procesos hasta (n-1): " + tamanioBloqueNormal);
 			
-			if ((cantProcesos % 2 == 0) && (n % 2 == 0)) {
-				System.out.println("Tamaño bloque para el ultimo proceso: " + tamanioBloqueUltimo);
+			if ((cantProcesos % 2 != 0) || (n % 2 != 0)) {
+				System.out.println("Tamaño bloque para el ultimo proceso: " + tamanioUltimoBloque);
 				System.out.println("----------------------------------------------------");
 			}
 			
+			//---> inicializo el contador para los procesos
+			int contProcesos = 0;
 			
-			int contProcesadores = 0;
-			
-			while (indiceSupMatriz <= n) {
+			while (indiceFinal <= n) {
 
-				int[][] subMat = new int[tamanioBloque][n];
+				int[][] subMat = new int[tamanioBloqueNormal][n];
 				int contador = 0;   //---> se usa para avanzar de posicione en el bloque
 				System.out.println(" ");
-				System.out.println("          Submatriz para el proceso =>  "+ contProcesadores); 
+				System.out.println("          Submatriz para el proceso =>  "+ contProcesos); 
 
-				for (int i = indiceInfMatriz; i < indiceSupMatriz; i++) { // Controla los indices para cada bloque
+				for (int i = indiceInicial; i < indiceFinal; i++) { // Controla los indices para cada bloque
 					System.out.print("    fila "+i +"  => ");
 					for (int j = 0; j < n; j++) {
 						subMat[contador][j] = datos[i][j];
@@ -89,24 +85,43 @@ public class EjercicioMatrices {
 					System.out.println();
 				}
 				
-				arrayEnvio[contProcesadores] = (Object) subMat;   //---> se envia como Object la submatriz porque sino no se puede enviar!! 
+				System.out.println(".:::  contador de procesadores : "+ contProcesos + "  :::.");
+				arrayEnvio[contProcesos] = (Object) subMat;   //---> se envia como Object la submatriz porque sino no se puede enviar!! 
 				int ultimoProceso = cantProcesos - 1; //---> obtengo el nro del ultimo proceso
-				contProcesadores++;  //---->  Incrementa el numero del procesador
 				
-				if (contProcesadores != ultimoProceso) {
-					//--->  si no es el ultimo procesador
-					indiceSupMatriz += tamanioBloque;
-					System.out.println(" - - - - -> " + indiceSupMatriz);
+				
+				if (contProcesos == 0) {
+					System.out.println(" - - - - -> Indice hasta donde tomo la submatriz => " + indiceInicial);
+					System.out.println(" - - - - -> Indice desde donde tomo la submatriz => " + indiceFinal);
+					System.out.println(".:::  contador de procesadores : "+ contProcesos + "  :::.");
+				}
+				
+				contProcesos++;  //---->  Incrementa el numero del procesador
+				System.out.println(".:::  contador de procesadores : "+ contProcesos + "  :::.");
+				
+				if (contProcesos != ultimoProceso) {
+					//--->  no es el ultimo se asigna normal
+					indiceFinal += tamanioBloqueNormal;
+					System.out.println("tamaño de bloque => " + tamanioBloqueNormal);
+					System.out.println(" no es el ultimo "+ (indiceInicial + tamanioBloqueNormal) +"  "+indiceFinal);
+					//contProcesadores++;  //---->  Incrementa el numero del procesador
+					//System.out.println(".:::  contador de procesadores : "+ contProcesadores + "  :::.");
+					
 				} else {
-					//--->  si es el ultimo procesador
-					indiceSupMatriz = n;
-					System.out.println(" - - - - -> " + indiceSupMatriz);
+					//---> es el ultimo proceso no se le asigna normal , se asigna la ultima submattriz
+					System.out.println("tamaño de bloque => "+ tamanioUltimoBloque);
+					System.out.println("es el ultimo "+ indiceInicial +"  "+ indiceFinal);
+					indiceFinal = n;	
+					//contProcesadores++;  //---->  Incrementa el numero del procesador
+					//System.out.println(".:::  contador de procesadores : "+ contProcesadores + "  :::.");
 				}
 
-				indiceInfMatriz += tamanioBloque;
-				System.out.println(" - - - - -> " + indiceInfMatriz);
-				//System.out.println("es el ultimo indice de la matriz wachoo -> "+indiceInfMatriz);
 				
+				indiceInicial += tamanioBloqueNormal;
+				System.out.println(" - - - - -> Indice hasta donde tomo la submatriz => " + indiceInicial);
+				System.out.println(" - - - - -> Indice desde donde tomo la submatriz => " + indiceFinal);
+				//System.out.println("es el ultimo indice de la matriz wachoo -> "+indiceInfMatriz);
+			
 			}
 		}
 		
@@ -114,13 +129,13 @@ public class EjercicioMatrices {
 		//-----> el Scatter divide todo lo que le mando por diferentes secciones y se lo asigna uno a uno a cada proceso
 		MPI.COMM_WORLD.Scatter(arrayEnvio, 0, 1, MPI.OBJECT, arrayReceptor, 0, 1, MPI.OBJECT, 0);
 		
-		int[][] matAux;   //---> una matriz auxiliar
-		matAux = new int[tamanioBloque][n];
+	
+		int [][] matAux = new int[tamanioBloqueNormal][n];    //---> una matriz auxiliar
 		
 		//--------> Verifico que si es el numero impar entonces va a haber uno que tenga una submatriz mas chiquita que los otros
 		if (nroProceso == 3) {
-			tamanioBloque = tamanioBloqueUltimo;
-			matAux = new int[tamanioBloque][n];
+			tamanioBloqueNormal = tamanioUltimoBloque;
+			matAux = new int[tamanioBloqueNormal][n];
 		}
 
 		
@@ -130,7 +145,7 @@ public class EjercicioMatrices {
 		int resultado = 0;
 		System.out.println(" ");
 		System.out.println("          Submatriz para el proceso =>  "+ nroProceso);
-		for (int i = 0; i < tamanioBloque; i++) {
+		for (int i = 0; i < tamanioBloqueNormal; i++) {
 			System.out.print("    fila "+i +"  => ");
 			for (int j = 0; j < n; j++) {
 				System.out.print("["+matAux[i][j] + "]" );
@@ -163,12 +178,10 @@ public class EjercicioMatrices {
 			System.out.println("-------------------------------------------------------");
 			
 		}
-		
-		
+			
 		//---> termina el MPI
 		MPI.Finalize();
 		
 	}
-	
 	
 }
