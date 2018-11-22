@@ -14,7 +14,7 @@ public class EjercicioMatricesComentado {
 		long startTime = 0; //= System.currentTimeMillis();   //---> el tiempo inicial 
 		int nroProceso,n,cantProcesos;
 		Random rand = new Random();
-		n = 5023 ;    //------> el numero de filas o columnas que tendra la matriz, sera NxN , TIENE QUE SER MULTIPLO DE 2
+		n = 6360 ;    //------> el numero de filas o columnas que tendra la matriz, sera NxN , TIENE QUE SER MULTIPLO DE 2
 		int[][] datos = new int[n][n];   //---> creo la matriz datos
 		
 		args = MPI.Init(args);
@@ -22,7 +22,7 @@ public class EjercicioMatricesComentado {
 		cantProcesos = MPI.COMM_WORLD.Size();   //---> el total de procesos que hay en total
 
 		int tamanioBloqueNormal = (int) Math.round((double) n / (double) cantProcesos);  //---> round redondea el numero integer mas cercano
-		int tamanioUltimoBloque = n - (tamanioBloqueNormal * (cantProcesos-1));   //---> cuenta para calcular el tamaño de el ultimo bloque
+		int tamanioUltimoBloque = n - (tamanioBloqueNormal * (cantProcesos-1));   //---> cuenta para calcular el tamaï¿½o de el ultimo bloque
 		
 		//--->  Estas variables  tienen que ser arrays de una posicion
 		Object arrayEnvio[] = new Object[cantProcesos];   //---> esta seria la inicializacion del bloque que se envia desde Po(la submatriz)
