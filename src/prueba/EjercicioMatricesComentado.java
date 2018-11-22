@@ -1,22 +1,20 @@
 package prueba;
 
 import java.util.Random;
+
 import mpi.MPI;
 
+public class EjercicioMatricesComentado {
 
-public class EjercicioMatrices {
-	
-	
-	
 	public static void main(String[] args) {
 		
-	
 		
+
 		//----------> variables 
 		long startTime = 0; //= System.currentTimeMillis();   //---> el tiempo inicial 
 		int nroProceso,n,cantProcesos;
 		Random rand = new Random();
-		n = 567 ;    //------> el numero de filas o columnas que tendra la matriz, sera NxN , TIENE QUE SER MULTIPLO DE 2
+		n = 5023 ;    //------> el numero de filas o columnas que tendra la matriz, sera NxN , TIENE QUE SER MULTIPLO DE 2
 		int[][] datos = new int[n][n];   //---> creo la matriz datos
 		
 		args = MPI.Init(args);
@@ -37,31 +35,19 @@ public class EjercicioMatrices {
 		
 		//---> Si es el proceso 0 entonces inicializa la matriz y reparte en submatrices
 		if (nroProceso == 0) {
-				System.out.println("----------------------------------------------------");
+			System.out.println("----------------------------------------------------");
 			System.out.println("                       COMIENZO                     ");
 			System.out.println(" * Proceso Master     => "+ nroProceso);
 			System.out.println(" * Numero de procesos => " + cantProcesos);
 			System.out.println("----------------------------------------------------");   
 			
 			//-------> inicializo la matriz con todos los valores
-			System.out.println("-----------------------------------------------------");
-			System.out.println("             GENERO MATRIZ CON DATOS                 ");
 			for (int i = 0; i < n; i++) {
-				System.out.print("    fila "+ i + "  =>   ");
 				for (int j = 0; j < n; j++) {
 					datos[i][j] = rand.nextInt(10);
-					System.out.print("["+datos[i][j]+"] ");
 				}
-				System.out.println();
 			}
 			
-			System.out.println("----------------------------------------------------");
-			System.out.println("Tamaño bloque para procesos hasta (n-1): " + tamanioBloqueNormal);
-			
-			if ((cantProcesos % 2 != 0) || (n % 2 != 0)) {
-				System.out.println("Tamaño bloque para el ultimo proceso: " + tamanioUltimoBloque);
-				System.out.println("----------------------------------------------------");
-			}  
 			
 			//---> inicializo el contador para los procesos
 			int contProcesos = 0;
@@ -71,56 +57,26 @@ public class EjercicioMatrices {
 
 				int[][] subMat = new int[tamanioBloqueNormal][n];
 				int contador = 0;   //---> se usa para avanzar de fila
-				System.out.println(" ");
-				System.out.println("          Submatriz para el proceso =>  "+ contProcesos); 
-
 				for (int i = indiceInicial; i < indiceFinal; i++) { // Controla los indices para cada bloque
-					System.out.print("    fila "+i +"  => ");
 					for (int j = 0; j < n; j++) {
 						subMat[contador][j] = datos[i][j];    //----> la columna en el for si cambia pero la fila no
-						System.out.print("["+subMat[contador][j]+"]");
 					}
-
 					contador++;
-					System.out.println();
 				}
 				
-				System.out.println(".:::  contador de procesadores : "+ contProcesos + "  :::.");
 				arrayEnvio[contProcesos] = (Object) subMat;   //---> se envia como Object la submatriz porque sino no se puede enviar!! 
 				int ultimoProceso = cantProcesos - 1; //---> obtengo el nro del ultimo proceso
-				
-				
-				if (contProcesos == 0) {
-					System.out.println(" - - - - -> Indice hasta donde tomo la submatriz => " + indiceInicial);
-					System.out.println(" - - - - -> Indice desde donde tomo la submatriz => " + indiceFinal);
-					System.out.println(".:::  contador de procesadores : "+ contProcesos + "  :::.");
-				} 
-				
 				contProcesos++;  //---->  Incrementa el numero del procesador
-				System.out.println(".:::  contador de procesadores : "+ contProcesos + "  :::.");
-				
+
 				if (contProcesos != ultimoProceso) {
 					//--->  no es el ultimo se asigna normal
 					indiceFinal += tamanioBloqueNormal;
-					System.out.println("tamaño de bloque => " + tamanioBloqueNormal);
-					System.out.println(" no es el ultimo "+ (indiceInicial + tamanioBloqueNormal) +"  "+indiceFinal);
-					//contProcesadores++;  //---->  Incrementa el numero del procesador
-					//System.out.println(".:::  contador de procesadores : "+ contProcesadores + "  :::.");
-					
 				} else {
 					//---> es el ultimo proceso no se le asigna normal
-					System.out.println("tamaño de bloque => "+ tamanioUltimoBloque);
-					System.out.println("es el ultimo "+ indiceInicial +"  "+ indiceFinal);
-					indiceFinal = n;	
-					//contProcesadores++;  //---->  Incrementa el numero del procesador
-					//System.out.println(".:::  contador de procesadores : "+ contProcesadores + "  :::.");
+					indiceFinal = n;
 				}
 
-				
 				indiceInicial += tamanioBloqueNormal;
-				System.out.println(" - - - - -> Indice hasta donde tomo la submatriz => " + indiceInicial);
-				System.out.println(" - - - - -> Indice desde donde tomo la submatriz => " + indiceFinal);
-			//	System.out.println("es el ultimo indice de la matriz wachoo -> "+indiceInfMatriz);
 			
 			}
 		}
@@ -142,27 +98,14 @@ public class EjercicioMatrices {
 		
 		matAux = (int[][]) arrayReceptor[0];  //------> inicializa la matriz con el bloque que va recibir
 		sumatoriaProcesoActual[0] = 0;   //------> Se inicializa la suma parcial que es donde se va a devolver el resultado total al proceso 0
-		System.out.println(" ");
-		System.out.println("          Submatriz para el proceso =>  "+ nroProceso);
 		for (int i = 0; i < tamanioBloqueNormal; i++) {
-			System.out.print("    fila "+i +"  => ");
 			for (int j = 0; j < n; j++) {
-				System.out.print("["+matAux[i][j] + "]" );
 				sumatoriaProcesoActual[0] = sumatoriaProcesoActual[0] + (matAux[i][j] % 10);  //----> calculo su mod
 			}
-			System.out.println();
 		}
-
-		
-		
-		System.out.println("  *   Sumatoria mod 10 de valores de proceso " + nroProceso + "   =>   " + sumatoriaProcesoActual[0]);
-		System.out.println("---------------------------------------------------------------------------------");
-		System.out.println(" ");
-				
 		
 		//-----> Le devuelve los resultados en la variable sumaTotal a el Proceso 0
 		MPI.COMM_WORLD.Reduce(sumatoriaProcesoActual,0, sumaTotal,0,1,MPI.INT,MPI.SUM,0);		
-		
 		
 		//----> Calcula el tiempo que tardo en hacerse el MPI solo si es el proceso Master
 		if (nroProceso == 0) {
@@ -180,6 +123,7 @@ public class EjercicioMatrices {
 		//---> termina el MPI
 		MPI.Finalize();
 		
+		
 	}
-	
+
 }
