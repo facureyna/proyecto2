@@ -10,7 +10,7 @@ public class EjercicioMatricesNoParalelo {
 		
 		long startTime = System.currentTimeMillis();  //---> tomo el timpo desde donde arranca
 		Random rand = new Random();
-		int n = 21 ;    //------> el numero de filas o columnas que tendra la matriz, sera NxN
+		int n = 1014 ;    //------> el numero de filas o columnas que tendra la matriz, sera NxN
 		int[][] datos = new int[n][n];   //---> creo la matriz datos
 		int sumaTotal = 0;
 		

@@ -24,7 +24,7 @@ public class EjercicioMatrices {
 		cantProcesos = MPI.COMM_WORLD.Size();   //---> el total de procesos que hay en total
 
 		int tamanioBloqueNormal = (int) Math.round((double) n / (double) cantProcesos);  //---> round redondea el numero integer mas cercano
-		int tamanioUltimoBloque = n - (tamanioBloqueNormal * (cantProcesos-1));   //---> cuenta para calcular el tamaño de el ultimo bloque
+		int tamanioUltimoBloque = n - (tamanioBloqueNormal * (cantProcesos-1));   //---> cuenta para calcular el tamaï¿½o de el ultimo bloque
 		
 		//--->  Estas variables  tienen que ser arrays de una posicion
 		Object arrayEnvio[] = new Object[cantProcesos];   //---> esta seria la inicializacion del bloque que se envia desde Po(la submatriz)
@@ -44,22 +44,22 @@ public class EjercicioMatrices {
 			System.out.println("----------------------------------------------------");   
 			
 			//-------> inicializo la matriz con todos los valores
-			System.out.println("-----------------------------------------------------");
-			System.out.println("             GENERO MATRIZ CON DATOS                 ");
+		//	System.out.println("-----------------------------------------------------");
+		//	System.out.println("             GENERO MATRIZ CON DATOS                 ");
 			for (int i = 0; i < n; i++) {
-				System.out.print("    fila "+ i + "  =>   ");
+		//		System.out.print("    fila "+ i + "  =>   ");
 				for (int j = 0; j < n; j++) {
 					datos[i][j] = rand.nextInt(10);
-					System.out.print("["+datos[i][j]+"] ");
+			//		System.out.print("["+datos[i][j]+"] ");
 				}
 				System.out.println();
 			}
 			
-			System.out.println("----------------------------------------------------");
-			System.out.println("Tamaño bloque para procesos hasta (n-1): " + tamanioBloqueNormal);
+		//	System.out.println("----------------------------------------------------");
+		//	System.out.println("Tamaï¿½o bloque para procesos hasta (n-1): " + tamanioBloqueNormal);
 			
-			if ((cantProcesos % 2 != 0) || (n % 2 != 0)) {
-				System.out.println("Tamaño bloque para el ultimo proceso: " + tamanioUltimoBloque);
+		/*	if ((cantProcesos % 2 != 0) || (n % 2 != 0)) {
+				System.out.println("Tamaï¿½o bloque para el ultimo proceso: " + tamanioUltimoBloque);
 				System.out.println("----------------------------------------------------");
 			}  
 			
@@ -71,45 +71,45 @@ public class EjercicioMatrices {
 
 				int[][] subMat = new int[tamanioBloqueNormal][n];
 				int contador = 0;   //---> se usa para avanzar de fila
-				System.out.println(" ");
-				System.out.println("          Submatriz para el proceso =>  "+ contProcesos); 
+			//	System.out.println(" ");
+			//	System.out.println("          Submatriz para el proceso =>  "+ contProcesos); 
 
 				for (int i = indiceInicial; i < indiceFinal; i++) { // Controla los indices para cada bloque
-					System.out.print("    fila "+i +"  => ");
+			//		System.out.print("    fila "+i +"  => ");
 					for (int j = 0; j < n; j++) {
 						subMat[contador][j] = datos[i][j];    //----> la columna en el for si cambia pero la fila no
-						System.out.print("["+subMat[contador][j]+"]");
+			//			System.out.print("["+subMat[contador][j]+"]");
 					}
 
 					contador++;
 					System.out.println();
 				}
 				
-				System.out.println(".:::  contador de procesadores : "+ contProcesos + "  :::.");
+			//	System.out.println(".:::  contador de procesadores : "+ contProcesos + "  :::.");
 				arrayEnvio[contProcesos] = (Object) subMat;   //---> se envia como Object la submatriz porque sino no se puede enviar!! 
 				int ultimoProceso = cantProcesos - 1; //---> obtengo el nro del ultimo proceso
 				
 				
-				if (contProcesos == 0) {
+			/*	if (contProcesos == 0) {
 					System.out.println(" - - - - -> Indice hasta donde tomo la submatriz => " + indiceInicial);
 					System.out.println(" - - - - -> Indice desde donde tomo la submatriz => " + indiceFinal);
 					System.out.println(".:::  contador de procesadores : "+ contProcesos + "  :::.");
 				} 
 				
 				contProcesos++;  //---->  Incrementa el numero del procesador
-				System.out.println(".:::  contador de procesadores : "+ contProcesos + "  :::.");
+			//	System.out.println(".:::  contador de procesadores : "+ contProcesos + "  :::.");
 				
 				if (contProcesos != ultimoProceso) {
 					//--->  no es el ultimo se asigna normal
 					indiceFinal += tamanioBloqueNormal;
-					System.out.println("tamaño de bloque => " + tamanioBloqueNormal);
-					System.out.println(" no es el ultimo "+ (indiceInicial + tamanioBloqueNormal) +"  "+indiceFinal);
+			//		System.out.println("tamaï¿½o de bloque => " + tamanioBloqueNormal);
+			//		System.out.println(" no es el ultimo "+ (indiceInicial + tamanioBloqueNormal) +"  "+indiceFinal);
 					//contProcesadores++;  //---->  Incrementa el numero del procesador
 					//System.out.println(".:::  contador de procesadores : "+ contProcesadores + "  :::.");
 					
 				} else {
 					//---> es el ultimo proceso no se le asigna normal
-					System.out.println("tamaño de bloque => "+ tamanioUltimoBloque);
+					System.out.println("tamaï¿½o de bloque => "+ tamanioUltimoBloque);
 					System.out.println("es el ultimo "+ indiceInicial +"  "+ indiceFinal);
 					indiceFinal = n;	
 					//contProcesadores++;  //---->  Incrementa el numero del procesador
@@ -145,7 +145,7 @@ public class EjercicioMatrices {
 		System.out.println(" ");
 		System.out.println("          Submatriz para el proceso =>  "+ nroProceso);
 		for (int i = 0; i < tamanioBloqueNormal; i++) {
-			System.out.print("    fila "+i +"  => ");
+	//		System.out.print("    fila "+i +"  => ");
 			for (int j = 0; j < n; j++) {
 				System.out.print("["+matAux[i][j] + "]" );
 				sumatoriaProcesoActual[0] = sumatoriaProcesoActual[0] + (matAux[i][j] % 10);  //----> calculo su mod
@@ -155,9 +155,9 @@ public class EjercicioMatrices {
 
 		
 		
-		System.out.println("  *   Sumatoria mod 10 de valores de proceso " + nroProceso + "   =>   " + sumatoriaProcesoActual[0]);
-		System.out.println("---------------------------------------------------------------------------------");
-		System.out.println(" ");
+	//	System.out.println("  *   Sumatoria mod 10 de valores de proceso " + nroProceso + "   =>   " + sumatoriaProcesoActual[0]);
+	//	System.out.println("---------------------------------------------------------------------------------");
+	//	System.out.println(" ");
 				
 		
 		//-----> Le devuelve los resultados en la variable sumaTotal a el Proceso 0
